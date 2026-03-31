@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Saly's Good Coin — Bon Coin de Saly</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --gold: #c9a84c;
+      --gold-light: #e8c97a;
+      --gold-dim: #8a6f2e;
+      --black: #0a0805;
+      --dark: #110e08;
+      --card: #1a1510;
+      --border: #2a2015;
+      --text: #d4c4a0;
+      --muted: #7a6a4a;
+      --white: #f5efe0;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Texture overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 5rem;
+      z-index: 100;
+      background: linear-gradient(to bottom, rgba(10,8,5,0.98), transparent);
+    }
+    .nav-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-style: italic;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+    .nav-links { display: flex; gap: 2.5rem; align-items: center; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.8rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-reserve {
+      background: var(--gold);
+      color: var(--black);
+      padding: 0.6rem 1.5rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    .nav-reserve:hover { background: var(--gold-light); color: var(--black) !important; }
+
+    /* HERO */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      padding: 0 2rem;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 50% 60%, rgba(201,168,76,0.12) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 80%, rgba(201,168,76,0.06) 0%, transparent 40%);
+    }
+
+    /* Motif africain décoratif */
+    .hero-pattern {
+      position: absolute;
+      inset: 0;
+      opacity: 0.04;
+      background-image: repeating-linear-gradient(
+        45deg,
+        var(--gold) 0px,
+        var(--gold) 1px,
+        transparent 1px,
+        transparent 20px
+      ),
+      repeating-linear-gradient(
+        -45deg,
+        var(--gold) 0px,
+        var(--gold) 1px,
+        transparent 1px,
+        transparent 20px
+      );
+    }
+
+    .hero-tag {
+      font-size: 0.7rem;
+      letter-spacing: 0.5em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.3s;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: clamp(3.5rem, 10vw, 8rem);
+      line-height: 0.9;
+      color: var(--white);
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.5s;
+    }
+    .hero-title em {
+      font-style: italic;
+      color: var(--gold);
+      display: block;
+    }
+
+    .hero-sub {
+      margin-top: 2rem;
+      font-size: 1rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      max-width: 450px;
+      line-height: 1.8;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.7s;
+    }
+
+    .hero-divider {
+      width: 60px;
+      height: 1px;
+      background: var(--gold);
+      margin: 2rem auto;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 0.9s;
+    }
+
+    .hero-cta {
+      display: flex;
+      gap: 1.5rem;
+      justify-content: center;
+      opacity: 0;
+      animation: fadeUp 1s ease forwards 1.1s;
+    }
+    .btn {
+      padding: 1rem 2.5rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all 0.3s;
+      display: inline-block;
+    }
+    .btn-gold {
+      background: var(--gold);
+      color: var(--black);
+      font-weight: 500;
+    }
+    .btn-gold:hover {
+      background: var(--gold-light);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(201,168,76,0.3);
+    }
+    .btn-outline {
+      border: 1px solid var(--gold-dim);
+      color: var(--gold);
+    }
+    .btn-outline:hover {
+      border-color: var(--gold);
+      background: rgba(201,168,76,0.08);
+      transform: translateY(-3px);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 3rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--muted);
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    .hero-scroll::after {
+      content: '';
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ABOUT */
+    #about {
+      padding: 10rem 5rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8rem;
+      align-items: center;
+      background: var(--dark);
+    }
+
+    .about-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .about-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: var(--white);
+      line-height: 1.2;
+      margin-bottom: 2rem;
+    }
+    .about-title em { font-style: italic; color: var(--gold); }
+    .about-text {
+      font-size: 0.9rem;
+      color: var(--muted);
+      line-height: 2;
+      margin-bottom: 1.5rem;
+    }
+    .about-stats {
+      display: flex;
+      gap: 3rem;
+      margin-top: 3rem;
+      padding-top: 3rem;
+      border-top: 1px solid var(--border);
+    }
+    .stat-number {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--gold);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-top: 0.5rem;
+    }
+
+    .about-visual {
+      position: relative;
+    }
+    .about-img-frame {
+      width: 100%;
+      aspect-ratio: 3/4;
+      background: var(--card);
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .about-img-frame::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(201,168,76,0.1) 0%, transparent 50%);
+    }
+    .about-img-placeholder {
+      font-size: 5rem;
+      opacity: 0.3;
+    }
+    .about-img-frame::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--gold-dim);
+      transform: translate(15px, 15px);
+      pointer-events: none;
+    }
+
+    /* MENU */
+    #menu {
+      padding: 10rem 5rem;
+      background: var(--black);
+    }
+
+    .menu-header {
+      text-align: center;
+      margin-bottom: 6rem;
+    }
+    .menu-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .menu-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      color: var(--white);
+      line-height: 1;
+    }
+    .menu-title em { font-style: italic; color: var(--gold); }
+    .menu-divider {
+      width: 60px;
+      height: 1px;
+      background: var(--gold);
+      margin: 2rem auto 0;
+    }
+
+    .menu-categories {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      margin-bottom: 4rem;
+      flex-wrap: wrap;
+    }
+    .menu-cat {
+      padding: 0.6rem 1.5rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.3s;
+      background: none;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .menu-cat.active, .menu-cat:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(201,168,76,0.06);
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1px;
+      border: 1px solid var(--border);
+    }
+
+    .menu-item {
+      background: var(--card);
+      padding: 2.5rem;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      transition: all 0.3s;
+      overflow: hidden;
+    }
+    .menu-item::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 2px;
+      background: var(--gold);
+      transition: width 0.4s ease;
+    }
+    .menu-item:hover { background: #1f1a10; }
+    .menu-item:hover::before { width: 100%; }
+
+    .menu-item-emoji { font-size: 2rem; margin-bottom: 1rem; }
+    .menu-item-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+    .menu-item-desc {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+    .menu-item-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .menu-item-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .menu-item-tag {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--gold-dim);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.6rem;
+    }
+
+    /* AMBIANCE */
+    #ambiance {
+      padding: 10rem 5rem;
+      background: var(--dark);
+      text-align: center;
+    }
+    .ambiance-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .ambiance-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+    .ambiance-title em { font-style: italic; color: var(--gold); }
+    .ambiance-sub {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 500px;
+      margin: 0 auto 5rem;
+      line-height: 1.9;
+    }
+
+    .ambiance-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .ambiance-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      padding: 3rem 2rem;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .ambiance-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 2px;
+      background: var(--gold);
+      transition: width 0.4s;
+    }
+    .ambiance-card:hover { border-color: var(--gold-dim); transform: translateY(-6px); }
+    .ambiance-card:hover::after { width: 100%; }
+    .ambiance-icon { font-size: 2.5rem; margin-bottom: 1.5rem; }
+    .ambiance-card-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 1rem;
+    }
+    .ambiance-card-text {
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.8;
+    }
+
+    /* RESERVATION */
+    #reservation {
+      padding: 10rem 5rem;
+      background: var(--black);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8rem;
+      align-items: start;
+    }
+    .res-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.4em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .res-title {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: clamp(2rem, 4vw, 3rem);
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 2rem;
+    }
+    .res-title em { font-style: italic; color: var(--gold); }
+    .res-info { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 3rem; }
+    .res-info-item {
+      display: flex;
+      gap: 1.5rem;
+      align-items: flex-start;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .res-info-icon { font-size: 1.2rem; margin-top: 0.1rem; }
+    .res-info-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.3rem;
+    }
+    .res-info-value {
+      font-size: 0.85rem;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .res-form { display: flex; flex-direction: column; gap: 1.2rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
+    .form-group label {
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      padding: 1rem 1.2rem;
+      outline: none;
+      transition: border-color 0.3s;
+      resize: none;
+    }
+    .form-group select option { background: var(--card); }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--gold); }
+    .form-group textarea { height: 100px; }
+    .form-submit {
+      background: var(--gold);
+      color: var(--black);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 1.2rem 2rem;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 0.5rem;
+    }
+    .form-submit:hover {
+      background: var(--gold-light);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(201,168,76,0.3);
+    }
+
+    /* FOOTER */
+    footer {
+      padding: 3rem 5rem;
+      background: var(--dark);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.2rem;
+      color: var(--gold);
+    }
+    footer p {
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+    }
+
+    /* Scroll reveal */
+    .reveal { opacity: 0; transform: translateY(40px); transition: all 0.9s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      nav { padding: 1.2rem 2rem; }
+      .nav-links { display: none; }
+      #about, #reservation { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 2rem; }
+      #menu, #ambiance { padding: 5rem 2rem; }
+      .ambiance-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 1rem; text-align: center; padding: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Saly's Good Coin</div>
+    <div class="nav-links">
+      <a href="#about">À propos</a>
+      <a href="#menu">Menu</a>
+      <a href="#ambiance">Ambiance</a>
+      <a href="#reservation" class="nav-reserve">Réserver</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-pattern"></div>
+    <div class="hero-tag">Restaurant Africain — Saly, Sénégal</div>
+    <h1 class="hero-title">
+      Saly's<br>
+      <em>Good Coin</em>
+    </h1>
+    <div class="hero-divider"></div>
+    <p class="hero-sub">Le bon coin de Saly. Une cuisine africaine authentique dans un écrin sombre et raffiné.</p>
+    <div class="hero-cta">
+      <a href="#menu" class="btn btn-gold">Voir le menu</a>
+      <a href="#reservation" class="btn btn-outline">Réserver une table</a>
+    </div>
+    <div class="hero-scroll">Découvrir</div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="reveal">
+      <div class="about-label">Notre Histoire</div>
+      <h2 class="about-title">Une cuisine du<br><em>cœur de l'Afrique</em></h2>
+      <p class="about-text">Niché au cœur de Saly, notre restaurant célèbre les saveurs authentiques de l'Afrique de l'Ouest. Chaque plat est une invitation au voyage, préparé avec des épices soigneusement sélectionnées et des produits frais du terroir.</p>
+      <p class="about-text">De la thiéboudiène royale au yassa parfumé, en passant par le mafé onctueux — ici, chaque bouchée raconte une histoire.</p>
+      <div class="about-stats">
+        <div>
+          <div class="stat-number">12+</div>
+          <div class="stat-label">Ans d'expérience</div>
+        </div>
+        <div>
+          <div class="stat-number">40+</div>
+          <div class="stat-label">Plats au menu</div>
+        </div>
+        <div>
+          <div class="stat-number">★ 4.9</div>
+          <div class="stat-label">Note clients</div>
+        </div>
+      </div>
+    </div>
+    <div class="about-visual reveal">
+      <div class="about-img-frame">
+        <div class="about-img-placeholder">🍽️</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENU -->
+  <section id="menu">
+    <div class="menu-header reveal">
+      <div class="menu-label">Notre Carte</div>
+      <h2 class="menu-title">Les Saveurs de<br><em>l'Afrique</em></h2>
+      <div class="menu-divider"></div>
+    </div>
+
+    <div class="menu-categories reveal">
+      <button class="menu-cat active">Tous</button>
+      <button class="menu-cat">Plats</button>
+      <button class="menu-cat">Entrées</button>
+      <button class="menu-cat">Boissons</button>
+      <button class="menu-cat">Desserts</button>
+    </div>
+
+    <div class="menu-grid">
+      <div class="menu-item reveal">
+        <div class="menu-item-emoji">🐟</div>
+        <div class="menu-item-name">Thiéboudiène Royal</div>
+        <div class="menu-item-desc">Le plat national sénégalais. Riz au poisson avec légumes du marché, épices maison et sauce tomate parfumée.</div>
+        <div class="menu-item-footer">
+          <div class="menu-item-price">4 500 FCFA</div>
+          <div class="menu-item-tag">Signature</div>
+        </div>
+      </div>
+      <div class="menu-item reveal">
+        <div class="menu-item-emoji">🍗</div>
+        <div class="menu-item-name">Yassa Poulet</div>
+        <div class="menu-item-desc">Poulet mariné au citron et oignons caramélisés, servi avec riz blanc et légumes grillés.</div>
+        <div class="menu-item-footer">
+          <div class="menu-item-price">3 500 FCFA</div>
+          <div class="menu-item-tag">Populaire</div>
+        </div>
+      </div>
+      <div class="menu-item reveal">
+        <div class="menu-item-emoji">🥩</div>
+        <div class="menu-item-name">Mafé Bœuf</div>
+        <div class="menu-item-desc">Ragoût de bœuf à la sauce arachide onctueuse, parfumé aux épices africaines. Servi avec attiéké.</div>
+        <div class="menu-item-footer">
+          <div class="menu-item-price">4 000 FCFA</div>
+          <div class="menu-item-tag">Chef</div>
+        </div>
+      </div>
+      <div class="menu-item reveal">
+        <div class="menu-item-emoji">🍲</div>
+        <div class="menu-item-name">Caldou de Capitaine</div>
+        <div class="menu-item-desc">Bouillon léger de poisson capitaine aux légumes frais. Délicat et parfumé, servi avec riz blanc.</div>
+        <div class="menu-item-footer">
+          <div class="menu-item-price">3 800 FCFA</div>
+          <div class="menu-item-tag">Léger</div>
+        </div>
+      </div>
+      <div class="menu-item reveal">
+        <div class="menu-item-emoji">🥤</div>
+        <div class="menu-item-name">Bissap Maison</div>
+        <div class="menu-item-desc">Jus d'hibiscus maison légèrement sucré, parfumé à la menthe fraîche et au gingembre.</div>
+        <div class="menu-item-footer">
+          <div class="menu-item-price">800 FCFA</div>
+          <div class="menu-item-tag">Boisson</div>
+        </div>
+      </div>
+      <div class="menu-item reveal">
+        <div class="menu-item-emoji">🍮</div>
+        <div class="menu-item-name">Thiakry au Lait</div>
+        <div class="menu-item-desc">Semoule de mil au lait caillé sucré, parsemée de raisins secs et d'une touche de vanille.</div>
+        <div class="menu-item-footer">
+          <div class="menu-item-price">1 200 FCFA</div>
+          <div class="menu-item-tag">Dessert</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AMBIANCE -->
+  <section id="ambiance">
+    <div class="reveal">
+      <div class="ambiance-label">L'Expérience</div>
+      <h2 class="ambiance-title">Plus qu'un repas,<br><em>un voyage</em></h2>
+      <p class="ambiance-sub">Chez Saly's Good Coin, nous créons une expérience complète qui éveille tous les sens.</p>
+    </div>
+    <div class="ambiance-grid">
+      <div class="ambiance-card reveal">
+        <div class="ambiance-icon">🎵</div>
+        <div class="ambiance-card-title">Musique Live</div>
+        <div class="ambiance-card-text">Chaque vendredi et samedi soir, des musiciens locaux animent la soirée avec du jazz africain et du mbalax.</div>
+      </div>
+      <div class="ambiance-card reveal">
+        <div class="ambiance-icon">🌿</div>
+        <div class="ambiance-card-title">Cadre Naturel</div>
+        <div class="ambiance-card-text">Terrasse ombragée face à l'océan, décoration artisanale et matériaux naturels pour une ambiance authentique.</div>
+      </div>
+      <div class="ambiance-card reveal">
+        <div class="ambiance-icon">👨‍🍳</div>
+        <div class="ambiance-card-title">Chef Étoilé</div>
+        <div class="ambiance-card-text">Notre chef puise dans les recettes ancestrales tout en apportant une touche moderne et créative à chaque plat.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESERVATION -->
+  <section id="reservation">
+    <div class="reveal">
+      <div class="res-label">Réservation</div>
+      <h2 class="res-title">Réservez votre<br><em>table</em></h2>
+      <div class="res-info">
+        <div class="res-info-item">
+          <div class="res-info-icon">📍</div>
+          <div>
+            <div class="res-info-label">Adresse</div>
+            <div class="res-info-value">Boulevard de l'Océan<br>Saly Portudal, Sénégal</div>
+          </div>
+        </div>
+        <div class="res-info-item">
+          <div class="res-info-icon">🕐</div>
+          <div>
+            <div class="res-info-label">Horaires</div>
+            <div class="res-info-value">Lun — Ven : 12h — 23h<br>Sam — Dim : 11h — 00h</div>
+          </div>
+        </div>
+        <div class="res-info-item">
+          <div class="res-info-icon">📞</div>
+          <div>
+            <div class="res-info-label">Téléphone</div>
+            <div class="res-info-value">+221 33 XXX XX XX</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="res-form reveal">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Prénom</label>
+          <input type="text" placeholder="Votre prénom"/>
+        </div>
+        <div class="form-group">
+          <label>Nom</label>
+          <input type="text" placeholder="Votre nom"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date"/>
+        </div>
+        <div class="form-group">
+          <label>Heure</label>
+          <input type="time"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nombre de personnes</label>
+        <select>
+          <option>1 personne</option>
+          <option>2 personnes</option>
+          <option>3-4 personnes</option>
+          <option>5-8 personnes</option>
+          <option>9+ personnes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Message (optionnel)</label>
+        <textarea placeholder="Occasion spéciale, régime alimentaire..."></textarea>
+      </div>
+      <button class="form-submit">Confirmer la réservation →</button>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Saly's Good Coin</div>
+    <p>© 2025 — Bon Coin de Saly, Sénégal</p>
+    <p>Fait avec ❤️ & épices</p>
+  </footer>
+
+  <script>
+    // Menu categories
+    const cats = document.querySelectorAll('.menu-cat');
+    cats.forEach(cat => {
+      cat.addEventListener('click', () => {
+        cats.forEach(c => c.classList.remove('active'));
+        cat.classList.add('active');
+      });
+    });
+
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+</body>
+</html>
